@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Options</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-image: url('https://files.catbox.moe/cpiqho.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            color: #fff;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        
+        .payment-method {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .payment-method:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .method-icon {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+        
+        .method-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .method-details {
+            width: 100%;
+            margin-top: auto;
+        }
+        
+        .detail-item {
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .detail-value {
+            word-break: break-all;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .copy-btn, .save-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .copy-btn:hover, .save-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .qris-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .qris-image {
+            width: 100%;
+            max-width: 250px;
+            border-radius: 10px;
+            display: block;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: zoom-in;
+            transition: transform 0.3s;
+            margin: 0 auto;
+        }
+        
+        .qris-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .payment-instruction {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* Modal styles for zoomed QR */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .zoomed-qr {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+            border-radius: 10px;
+            border: 3px solid white;
+        }
+        
+        .modal-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .close-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+            
+            .zoomed-qr {
+                max-width: 95%;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+                width: 80%;
+            }
+            
+            .modal-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="container">
+        <h1>Payment Bayy Store</h1>
+        
+        <div class="payment-methods">
+            <!-- DANA Payment Method -->
+            <div class="payment-method">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_dana_blue.svg" alt="DANA" class="method-icon">
+                <h2 class="method-title">DANA</h2>
+                <div class="method-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Number</span>
+                        <span class="detail-value">082283884416</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Account Name</span>
+                        <span class="detail-value">M.ZAKARIA</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="copy-btn" onclick="copyToClipboard('082283884416', 'DANA number')">
+                            <i class="fas fa-copy"></i> Copy Number
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- GOPAY Payment Method -->
+            <div class="payment-method">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GOPAY" class="method-icon">
+                <h2 class="method-title">GOPAY</h2>
+                <div class="method-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Number</span>
+                        <span class="detail-value">082283884416</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Account Name</span>
+                        <span class="detail-value">M.ZAKARIA</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="copy-btn" onclick="copyToClipboard('082283884416', 'GOPAY number')">
+                            <i class="fas fa-copy"></i> Copy Number
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QRIS Payment Method -->
+            <div class="payment-method">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png" alt="QRIS" class="method-icon">
+                <h2 class="method-title">QRIS</h2>
+                <div class="method-details">
+                    <div class="qris-container">
+                        <img src="https://files.catbox.moe/ule5hd.jpg" alt="QR Code" class="qris-image" id="qrisImage">
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Account Name</span>
+                        <span class="detail-value">M.ZAKARIA</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="save-btn" onclick="openModal()">
+                            <i class="fas fa-expand"></i> Zoom/Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <p class="payment-instruction">After making payment, please confirm by sending the payment proof to our customer service.</p>
+    </div>
+
+    <!-- QR Zoom Modal -->
+    <div id="qrModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <img src="https://files.catbox.moe/ule5hd.jpg" class="zoomed-qr" id="zoomedQr">
+            <div class="modal-actions">
+                <button class="modal-btn download-btn" onclick="downloadQR()">
+                    <i class="fas fa-download"></i> Download QR
+                </button>
+                <button class="modal-btn close-btn" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Copy to clipboard function
+        function copyToClipboard(text, description) {
+            navigator.clipboard.writeText(text).then(function() {
+                showAlert(`Copied ${description} to clipboard`);
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+                showAlert('Failed to copy, please try again');
+            });
+        }
+
+        // Show alert message
+        function showAlert(message) {
+            const alert = document.createElement('div');
+            alert.style.position = 'fixed';
+            alert.style.bottom = '20px';
+            alert.style.left = '50%';
+            alert.style.transform = 'translateX(-50%)';
+            alert.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            alert.style.color = 'white';
+            alert.style.padding = '12px 24px';
+            alert.style.borderRadius = '5px';
+            alert.style.zIndex = '1000';
+            alert.style.transition = 'opacity 0.5s';
+            alert.textContent = message;
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(alert);
+                }, 500);
+            }, 3000);
+        }
+
+        // QR Modal functions
+        const modal = document.getElementById("qrModal");
+        const qrImg = document.getElementById("qrisImage");
+        const zoomedQr = document.getElementById("zoomedQr");
+
+        function openModal() {
+            modal.style.display = "block";
+            zoomedQr.src = qrImg.src;
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // Download QR function
+        function downloadQR() {
+            const link = document.createElement('a');
+            link.href = qrImg.src;
+            link.download = 'QRIS-Payment-M.ZAKARIA.jpg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showAlert('QR code downloaded');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
